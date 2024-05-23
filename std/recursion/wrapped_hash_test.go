@@ -336,3 +336,72 @@ func TestTranscriptMarshal(t *testing.T) {
 		assert.CheckCircuit(circuit, test.WithValidAssignment(assignment), test.WithCurves(ecc.BN254), test.NoFuzzing(), test.NoSerializationChecks(), test.NoProverChecks())
 	}, "bn254")
 }
+
+func TestCollision(t *testing.T) {
+	h, err := recursion.NewShort(ecc.BLS12_377.ScalarField(), ecc.BN254.ScalarField())
+	if err != nil {
+		panic(err)
+	}
+	println(ecc.BLS12_377.ScalarField().BitLen())
+	println(ecc.BN254.ScalarField().BitLen())
+	h.Write([]byte{0x00})
+	hash := h.Sum(nil)
+	fmt.Printf("%x\n", hash) // 34373b65f439c874734ff51ea349327c140cde2e47a933146e6f9f2ad8eb17
+	h.Reset()
+
+	h.Write([]byte{0x00})
+	h.Write([]byte{0x00})
+	fmt.Printf("%x\n", h.Sum(nil)) //34373b65f439c874734ff51ea349327c140cde2e47a933146e6f9f2ad8eb17
+}
+
+// type collisionCircuit struct {
+// 	FirstPreimage  []frontend.Variable
+// 	SecondPreimage []frontend.Variable
+// 	inner          ecc.ID
+// }
+
+// func (c *collisionCircuit) Define(api frontend.API) error {
+// 	hasher, err := recursion.NewHash(api, c.inner.ScalarField(), false)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	for i := range c.FirstPreimage {
+// 		hasher.Write(c.FirstPreimage[i])
+// 	}
+// 	h1 := hasher.Sum()
+// 	hasher.Reset()
+
+// 	hasher2, _ := recursion.NewHash(api, c.inner.ScalarField(), false)
+// 	for i := range c.SecondPreimage {
+// 		hasher2.Write(c.SecondPreimage[i])
+// 	}
+// 	h2 := hasher2.Sum()
+// 	hasher2.Reset()
+
+// 	api.AssertIsEqual(h1, h2)
+
+// 	return nil
+// }
+
+// func TestCollisionCircuit(t *testing.T) {
+// 	outer := ecc.BN254
+// 	inner := ecc.BN254
+// 	fmt.Println("outer", outer.ScalarField().BitLen())
+// 	fmt.Println("inner", inner.ScalarField().BitLen())
+
+// 	circuit := &collisionCircuit{
+// 		FirstPreimage:  make([]frontend.Variable, 3),
+// 		SecondPreimage: make([]frontend.Variable, 4),
+// 		inner:          inner,
+// 	}
+
+// 	assignment := &collisionCircuit{
+// 		FirstPreimage:  []frontend.Variable{0, 0, 0},
+// 		SecondPreimage: []frontend.Variable{0, 0, 0, 0},
+// 		inner:          inner,
+// 	}
+
+// 	assert := test.NewAssert(t)
+// 	assert.CheckCircuit(circuit, test.WithCurves(outer), test.WithValidAssignment(assignment), test.NoFuzzing(), test.NoSerializationChecks(), test.NoSolidityChecks(), test.NoProverChecks())
+// }
