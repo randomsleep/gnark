@@ -86,12 +86,13 @@ func (c *commitChecker) commit(api frontend.API) error {
 			panic(fmt.Sprintf("decompose %v", err))
 		}
 		// store all limbs for counting
-		decomposed = append(decomposed, limbs...)
+		decomposed = append(decomposed, limbs...) // TODO suneal: what if limbs is over baseLength?
 		// check that limbs are correct. We check the sizes of the limbs later
 		var composed frontend.Variable = 0
 		for j := range limbs {
 			composed = api.Add(composed, api.Mul(limbs[j], coef.Lsh(one, uint(baseLength*j))))
 		}
+		// what if composed overflow?
 		api.AssertIsEqual(composed, c.collected[i].v)
 		// we have split the input into nbLimbs partitions of length baseLength.
 		// This ensures that the checked variable is not more than

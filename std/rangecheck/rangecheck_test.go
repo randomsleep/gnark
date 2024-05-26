@@ -25,22 +25,25 @@ func (c *CheckCircuit) Define(api frontend.API) error {
 }
 
 func TestCheck(t *testing.T) {
-	assert := test.NewAssert(t)
-	var err error
-	bits := 64
-	nbVals := 100000
-	bound := new(big.Int).Lsh(big.NewInt(1), uint(bits))
-	vals := make([]frontend.Variable, nbVals)
-	for i := range vals {
-		vals[i], err = rand.Int(rand.Reader, bound)
-		if err != nil {
-			t.Fatal(err)
+	for bits := 1; bits <= 64; bits++ {
+		assert := test.NewAssert(t)
+		var err error
+		// bits := 64
+		nbVals := 10000
+		bound := new(big.Int).Lsh(big.NewInt(1), uint(bits))
+		vals := make([]frontend.Variable, nbVals)
+		for i := range vals {
+			vals[i], err = rand.Int(rand.Reader, bound)
+			if err != nil {
+				t.Fatal(err)
+			}
 		}
+		witness := CheckCircuit{Vals: vals, bits: bits}
+		circuit := CheckCircuit{Vals: make([]frontend.Variable, len(vals)), bits: bits}
+		err = test.IsSolved(&circuit, &witness, ecc.BN254.ScalarField())
+		assert.NoError(err)
+		_, err = frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, &circuit, frontend.WithCompressThreshold(100))
+		assert.NoError(err)
 	}
-	witness := CheckCircuit{Vals: vals, bits: bits}
-	circuit := CheckCircuit{Vals: make([]frontend.Variable, len(vals)), bits: bits}
-	err = test.IsSolved(&circuit, &witness, ecc.BN254.ScalarField())
-	assert.NoError(err)
-	_, err = frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, &circuit, frontend.WithCompressThreshold(100))
-	assert.NoError(err)
+
 }

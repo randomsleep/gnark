@@ -46,15 +46,17 @@ func TestAssertIsLessEqualThan(t *testing.T) {
 }
 
 func testAssertIsLessEqualThan[T FieldParams](t *testing.T) {
-	var fp T
+	// var fp T
 	assert := test.NewAssert(t)
 	assert.Run(func(assert *test.Assert) {
-		var circuit, witness AssertIsLessEqualThanCircuit[T]
-		R, _ := rand.Int(rand.Reader, fp.Modulus())
-		L, _ := rand.Int(rand.Reader, R)
-		witness.R = ValueOf[T](R)
-		witness.L = ValueOf[T](L)
-		assert.CheckCircuit(&circuit, test.WithValidAssignment(&witness))
+		for i := 0; i < 100; i++ {
+			var circuit, witness AssertIsLessEqualThanCircuit[T]
+			R, _ := rand.Int(rand.Reader, new(big.Int).SetInt64(73))
+			L, _ := rand.Int(rand.Reader, R.Add(R, big.NewInt(1)))
+			witness.R = ValueOf[T](R)
+			witness.L = ValueOf[T](L)
+			assert.CheckCircuit(&circuit, test.WithValidAssignment(&witness))
+		}
 	}, testName[T]())
 }
 

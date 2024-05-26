@@ -30,7 +30,7 @@ import (
 //
 // Given these values, the following holds:
 //
-//	a * b = r * k*p
+//	a * b = r + k*p
 //
 // But for asserting that the previous equation holds, we instead use the
 // polynomial representation of the elements. If a non-native element a is given

@@ -77,10 +77,29 @@ func (f *Field[T]) AssertIsLessOrEqual(e, a *Element[T]) {
 	for i := len(eBits) - 1; i >= 0; i-- {
 		v := f.api.Mul(p[i+1], eBits[i])
 		p[i] = f.api.Select(aBits[i], v, p[i+1])
+
 		t := f.api.Select(aBits[i], 0, p[i+1])
 		l := f.api.Sub(1, t, eBits[i])
 		ll := f.api.Mul(l, eBits[i])
 		f.api.AssertIsEqual(ll, 0)
+	}
+
+	// Perfrom the same operation as above but with a different approach. This seems to be easier to understand and have less constraints.
+	// From most significant bit to least significant bit, we compare the bits of e and a.
+	for i := len(eBits) - 1; i >= 0; i-- {
+		// ll == 0  <==>  e[i] <= a[i]
+		// ll = e[i] * (1 - a[i])
+		ll := f.api.Mul(eBits[i], f.api.Sub(1, aBits[i]))
+		// p[i+1] = 0 means e[i+1:len(eBits)] < a[i+1:len(aBits)], that is, e is already strictly less than a by far.
+		// assert (p[1+1] == 0 || e[i] <= a[i])
+		f.api.AssertIsEqual(f.api.Mul(p[i+1], ll), 0)
+
+		// l == 1  <==>  e[i] >= a[i]
+		// l = 1 - a[i] * (1 - e[i])
+		l := f.api.Sub(1, f.api.Mul(aBits[i], f.api.Sub(1, eBits[i])))
+		// p[i] = 0 if p[+1] == 0 or e[i] < a[i]
+		// that is, p[i] = p[i+1] * (e[i] < a[i] ? 0 : 1) = p[i+1] * (e[i] >= a[i]) = p[i+1] * l
+		p[i] = f.api.Mul(p[i+1], l)
 	}
 }
 
