@@ -97,8 +97,8 @@ func (f *Field[T]) AssertIsLessOrEqual(e, a *Element[T]) {
 		// l == 1  <==>  e[i] >= a[i]
 		// l = 1 - a[i] * (1 - e[i])
 		l := f.api.Sub(1, f.api.Mul(aBits[i], f.api.Sub(1, eBits[i])))
-		// p[i] = 0 if p[+1] == 0 or e[i] < a[i]
-		// that is, p[i] = p[i+1] * (e[i] < a[i] ? 0 : 1) = p[i+1] * (e[i] >= a[i]) = p[i+1] * l
+		// p[i] = 0 if (p[i+1] == 0 or e[i] < a[i])
+		// that is, p[i] = p[i+1] * (e[i] < a[i] ? 0 : 1) = p[i+1] * (e[i] >= a[i] ? 1 : 0) = p[i+1] * l
 		p[i] = f.api.Mul(p[i+1], l)
 	}
 }
