@@ -28,5 +28,5 @@ func (c *toNAFCircuit) Define(api frontend.API) error {
 
 func TestToNAF(t *testing.T) {
 	assert := test.NewAssert(t)
-	assert.ProverSucceeded(&toNAFCircuit{}, &toNAFCircuit{A: 13, B0: 1, B1: 0, B2: -1, B3: 0, B4: 1})
+	assert.ProverSucceeded(&toNAFCircuit{}, &toNAFCircuit{A: 13, B0: 1, B1: 0, B2: 1, B3: 1, B4: 0})
 }

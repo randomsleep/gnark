@@ -95,13 +95,14 @@ func nafDecomposition(a *big.Int, results []*big.Int) error {
 		if buf.Cmp(&zero) == 0 {
 			results[n].SetUint64(0)
 		} else { // aCopy odd
-			buf.And(&aCopy, &three)
-			if buf.IsUint64() && buf.Uint64() == 3 {
-				results[n].SetInt64(-1)
-				aCopy.Add(&aCopy, &one)
-			} else {
-				results[n].SetUint64(1)
-			}
+			results[n].SetUint64(1)
+			// buf.And(&aCopy, &three)
+			// if buf.IsUint64() && buf.Uint64() == 3 {
+			// 	results[n].SetInt64(-1)
+			// 	aCopy.Add(&aCopy, &one)
+			// } else {
+			// 	results[n].SetUint64(1)
+			// }
 		}
 		aCopy.Rsh(&aCopy, 1)
 		n++
